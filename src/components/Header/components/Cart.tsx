@@ -1,39 +1,42 @@
-import { Popover, Button, Badge} from '@mantine/core';
+import { Popover, Button, Badge } from '@mantine/core';
 import { CartItem } from './CartItem/CartItem';
-import { useAppContext } from '../../../context';
-
+import { useAppSelector } from '../../../hooks/reduxHooks';
 
 export function Cart() {
- const {cart, addToCart, removeToCart, total} = useAppContext()
+  const cartItems = useAppSelector((state) => state.cart.items);
+  const total = cartItems.reduce((sum, item) => sum + item.qty * item.product.price, 0);
 
   return (
     <Popover width={444} position="bottom" withArrow shadow="md">
-      
       <Popover.Target>
-        
-        <Button color="#54B46A">{Boolean(cart.length) && <Badge mr={10} size="xs" circle variant="white" color='black'>{cart.length}</Badge>}Cart  <img src="src/cart.png" alt=""/></Button>
+        <Button color="#54B46A">
+          {cartItems.length > 0 && (
+            <Badge mr={10} size="xs" circle variant="white" color="black">
+              {cartItems.length}
+            </Badge>
+          )}
+          Cart <img src="src/cart.png" alt="" />
+        </Button>
       </Popover.Target>
-      
+
       <Popover.Dropdown>
         <div>
-          {cart.map((item) => (
-            <CartItem
-              key={item.vegetable.id}
-              item={item}
-              removeToCart={removeToCart}
-              addToCart={addToCart}
-            />
+          {cartItems.map((item) => (
+            <CartItem key={item.product.id} item={item} />
           ))}
         </div>
-        {Boolean(total) && 
-        <div style={{display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'}}>
-          <p>Total</p>
-           <div>
-           $ {total}
-            </div>
-          </div>}
+        {total > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <p>Total</p>
+            <div>$ {total}</div>
+          </div>
+        )}
       </Popover.Dropdown>
     </Popover>
   );

@@ -1,60 +1,20 @@
 import { AppShell, Loader } from '@mantine/core';
-import { useDataLoad } from './hooks';
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from './hooks/reduxHooks';
+import { fetchProducts } from './store/productsSlice';
 import { Header, Main } from './components';
-import { useState } from 'react';
-import type { Vegetables } from './types';
-import { AppContext } from './context';
-
-interface Cart {
-  vegetable: Vegetables;
-  qty: number;
-}
 
 function App() {
-  const { vegetables, loading } = useDataLoad();
-  const [cart, setCart] = useState<Cart[]>([]);
+  const dispatch = useAppDispatch();
+  const { loading } = useAppSelector((state) => state.products);
 
-  
-
-  const addToCart = (vegetable: Vegetables, qty: number) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.vegetable.id === vegetable.id);
-      if (existing) {
-        return prev.map((item) => {
-          return item.vegetable.id === vegetable.id
-            ? { ...item, qty: item.qty + qty }
-            : item;
-        });
-      }
-      return [...prev, { vegetable, qty }];
-    });
-  };
-
-  const removeToCart = (id: number, qty: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) => {
-          return item.vegetable.id === id
-            ? { ...item, qty: item.qty - qty }
-            : item;
-        })
-        .filter((item) => item.qty > 0)
-    );
-  };
-
-
-
- const totalPrice = cart.reduce((sum, i) => sum + i.qty * i.vegetable.price, 0)
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   if (loading) {
     return (
-      <div
-      // style={{
-      //   display: "grid",
-      //   placeItems: "center",
-      //   minHeight: "100vh",
-      // }}
-      >
+      <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
         <Loader size={50} />
       </div>
     );
@@ -62,10 +22,8 @@ function App() {
 
   return (
     <AppShell padding="md" header={{ height: 60 }}>
-      <AppContext.Provider value={{cart, removeToCart, addToCart, vegetables, total: totalPrice}}>
       <Header />
       <Main />
-      </ AppContext.Provider>
     </AppShell>
   );
 }

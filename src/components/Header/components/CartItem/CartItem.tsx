@@ -1,78 +1,56 @@
-import type { Vegetables } from '../../../../types';
 import { Text } from '@mantine/core';
-
-interface CartItem {
-  vegetable: Vegetables;
-  qty: number;
-}
+import { useAppDispatch } from '../../../../hooks/reduxHooks';
+import { addToCart, removeFromCart } from '../../../../store/cartSlice';
+import type { CartItem as CartItemType } from '../../../../store/types';
 
 interface CartItemProps {
-  item: CartItem;
-  removeToCart: (id: number, qty: number) => void;
-  addToCart: (vegetable: Vegetables, qty: number) => void;
+  item: CartItemType;
 }
 
-export function CartItem({ item, removeToCart, addToCart }: CartItemProps) {
+export function CartItem({ item }: CartItemProps) {
+  const dispatch = useAppDispatch();
+
+  const handleDecrease = () => {
+    dispatch(removeFromCart({ id: item.product.id, qty: 1 }));
+  };
+
+  const handleIncrease = () => {
+    dispatch(addToCart({ product: item.product, qty: 1 }));
+  };
+
   return (
-    <div
-      style={{
-        display: 'flex',
-      }}
-    >
-      {/* Изображение */}
+    <div style={{ display: 'flex' }}>
       <div>
         <img
-          src={item.vegetable.image}
-          alt={item.vegetable.name}
+          src={item.product.image}
+          alt={item.product.name}
           style={{ width: '64px', height: '64px', borderRadius: '8px' }}
         />
       </div>
 
-      {/* Информация */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Название */}
         <Text size="sm" fw={700}>
-          {item.vegetable.name}
+          {item.product.name}
+        </Text>
+        <Text size="sm" fw={700}>
+          ${item.product.price}
         </Text>
 
-        {/* Цена - теперь под названием */}
-        <Text size="sm" fw={700}>
-          ${item.vegetable.price}
-        </Text>
-
-        {/* Трекер - в правом нижнем углу */}
-        <div
-          style={{
-            marginTop: 'auto',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
+        <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-
               width: '90px',
               height: '30px',
             }}
           >
-            <button
-              className="counter"
-              onClick={() => {
-                removeToCart(item.vegetable.id, 1);
-              }}
-            >
+            <button className="counter" onClick={handleDecrease} disabled={item.qty === 1}>
               -
             </button>
-            <text>{item.qty}</text>
-            <button
-              className="counter"
-              onClick={() => {
-                addToCart(item.vegetable, 1);
-              }}
-            >
+            <span>{item.qty}</span>
+            <button className="counter" onClick={handleIncrease}>
               +
             </button>
           </div>

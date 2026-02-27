@@ -46,7 +46,7 @@ export function CartItem({ item }: CartItemProps) {
               height: '30px',
             }}
           >
-            <button className="counter" onClick={handleDecrease} disabled={item.qty === 1}>
+            <button className="counter" onClick={handleDecrease}>
               -
             </button>
             <span>{item.qty}</span>
